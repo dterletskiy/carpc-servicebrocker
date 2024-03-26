@@ -1,4 +1,4 @@
-#include "carpc/tools/Tools.hpp"
+#include "carpc/tools/parameters/Params.hpp"
 #include "ConnectionProcessor.hpp"
 
 #include "carpc/trace/Trace.hpp"
@@ -11,20 +11,17 @@ using tExit = void (*)( void );
 
 void preinit( int argc, char** argv, char** envp )
 {
-   carpc::tools::PCE configuration( argc, argv, envp );
-   configuration.print( );
+   auto params = carpc::tools::parameters::Params( argc, argv, envp );
 
    const carpc::trace::eLogStrategy trace_strategy = carpc::trace::log_strategy_from_string(
-         configuration.value_or( "trace_log", "CONSOLE" ).c_str( )
+         params.value_or( "trace_log", "CONSOLE" )
       );
-   const std::size_t trace_buffer = static_cast< std::size_t >( std::stoll(
-         configuration.value_or( "trace_buffer", "4096" )
-      ) );
-   const std::string trace_app_name = configuration.value_or( "trace_app_name", "SBR" );
+   const std::size_t trace_buffer = static_cast< std::size_t >(
+         std::stoll( params.value_or( "trace_buffer", "4096" ) )
+      );
+   const std::string trace_app_name = params.value_or( "trace_app_name", "SBR" );
    const carpc::trace::eLogLevel trace_level = carpc::trace::log_level_from_number(
-         std::stoll(
-            configuration.value_or( "trace_level", "6" )
-         )
+         std::stoll( params.value_or( "trace_level", "6" ) )
       );
    carpc::trace::Logger::init( trace_strategy, trace_app_name, trace_buffer, trace_level );
 
@@ -60,23 +57,23 @@ void __destructor__( )
 
 int main( int argc, char** argv, char** envp )
 {
-   carpc::tools::PCE configuration( argc, argv, envp );
-   configuration.print( );
+   carpc::tools::parameters::Params params( argc, argv, envp );
+   params.print( );
 
    carpc::os::os_linux::socket::configuration socket_configuration{
       carpc::os::os_linux::socket::socket_domain_from_string(
-            configuration.value( "ipc_servicebrocker_domain" ).value( ).c_str( )
+            params.value( "ipc_servicebrocker_domain" )
          ),
       carpc::os::os_linux::socket::socket_type_from_string(
-            configuration.value( "ipc_servicebrocker_type" ).value( ).c_str( )
+            params.value( "ipc_servicebrocker_type" )
          ),
-      static_cast< int >( std::stoll( configuration.value( "ipc_servicebrocker_protocole" ).value( ) ) ),
-      configuration.value( "ipc_servicebrocker_address" ).value( ),
-      static_cast< int >( std::stoll( configuration.value( "ipc_servicebrocker_port" ).value( ) ) )
+      static_cast< int >( std::stoll( params.value( "ipc_servicebrocker_protocole" ) ) ),
+      params.value( "ipc_servicebrocker_address" ),
+      static_cast< int >( std::stoll( params.value( "ipc_servicebrocker_port" ) ) )
    };
 
    std::size_t buffer_size = static_cast< std::size_t >( std::stoll(
-         configuration.value( "ipc_servicebrocker_buffer_size" ).value( )
+         params.value( "ipc_servicebrocker_buffer_size" )
       ) );
 
    ConnectionProcessor conn( socket_configuration, buffer_size );
