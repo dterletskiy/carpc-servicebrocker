@@ -78,5 +78,5 @@ add_custom_target( "${PROJECT_TARGET_NAME}_documentation" ALL
 
 add_dependencies( ${PROJECT_TARGET_NAME} "${PROJECT_TARGET_NAME}_documentation" )
 
-install( TARGETS ${PROJECT_TARGET_NAME} DESTINATION bin )
-install( FILES ${PROJECT_SOURCE_DIR}/${PROJECT_TARGET_NAME}.cfg DESTINATION etc )
+install( TARGETS ${PROJECT_TARGET_NAME} DESTINATION bin/carpc )
+install( FILES ${PROJECT_SOURCE_DIR}/${PROJECT_TARGET_NAME}.cfg DESTINATION etc/carpc )
