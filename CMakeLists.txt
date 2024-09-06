@@ -45,7 +45,10 @@ link_directories( ${RUNTIME_BINARY_DIR} )
 #                                   Build source file list                                #
 #                                                                                         #
 ###########################################################################################
-find_files_by_ext( RECURSE FILES PROJECT_SOURCE_FILES LOCATION ${PROJECT_SOURCE_DIR} EXTENTIONS ${EXTENTIONS_CPP_SRC} )
+find_files_by_ext( RECURSE FILES PROJECT_SOURCE_FILES
+      LOCATION ${PROJECT_SOURCE_DIR}
+      EXTENTIONS ${EXTENTIONS_CPP_SRC}
+   )
 
 
 
@@ -63,7 +66,7 @@ add_executable(
       ${PROJECT_SOURCE_FILES}
    )
 
-target_link_libraries( ${PROJECT_TARGET_NAME} ${RUNTIME_TARGET_NAME} )
+target_link_libraries( ${PROJECT_TARGET_NAME} ${RUNTIME_TARGET_NAME}-shared )
 if( MEMORY_HOOK )
    target_link_libraries( ${PROJECT_TARGET_NAME} ${HOOKS_TARGET_NAME} )
 endif( )
@@ -71,12 +74,16 @@ if( INSTRUMENTAL )
    target_link_libraries( ${PROJECT_TARGET_NAME} ${INSTRUMENTAL_TARGET_NAME} )
 endif( )
 
-add_custom_target( "${PROJECT_TARGET_NAME}_documentation" ALL
-      COMMENT "cmake ${PROJECT_TARGET_NAME}_documentation"
+add_custom_target( "${PROJECT_TARGET_NAME}-documentation" ALL
+      COMMENT "cmake ${PROJECT_TARGET_NAME}-documentation"
       DEPENDS ${PROJECT_GEN_PLANTUML_FILES}
    )
 
-add_dependencies( ${PROJECT_TARGET_NAME} "${PROJECT_TARGET_NAME}_documentation" )
+add_dependencies( ${PROJECT_TARGET_NAME} "${PROJECT_TARGET_NAME}-documentation" )
 
 install( TARGETS ${PROJECT_TARGET_NAME} DESTINATION bin/carpc )
-install( FILES ${PROJECT_SOURCE_DIR}/${PROJECT_TARGET_NAME}.cfg DESTINATION etc/carpc )
+install(
+      FILES ${PROJECT_SOURCE_DIR}/configuration.cfg
+      DESTINATION etc/carpc
+      RENAME ${PROJECT_TARGET_NAME}.cfg
+   )
