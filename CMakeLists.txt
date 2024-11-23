@@ -9,7 +9,7 @@ fenix_project( TARGET servicebrocker PROJECT SERVICEBROCKER )
 #                             Compilation include directories                             #
 #                                                                                         #
 ###########################################################################################
-include_directories( ${PROJECT_SOURCE_DIR} )
+include_directories( ${PROJECT_SOURCE_DIR}/api )
 include_directories( ${PROJECT_GEN_DIR} )
 include_directories( ${TRACING_SOURCE_DIR}/api )
 include_directories( ${BASE_SOURCE_DIR}/api )
@@ -81,9 +81,35 @@ add_custom_target( "${PROJECT_TARGET_NAME}-documentation" ALL
 
 add_dependencies( ${PROJECT_TARGET_NAME} "${PROJECT_TARGET_NAME}-documentation" )
 
-install( TARGETS ${PROJECT_TARGET_NAME} DESTINATION bin )
+
+
+install( TARGETS ${PROJECT_TARGET_NAME} DESTINATION bin/carpc/ )
+
 install(
       FILES ${PROJECT_SOURCE_DIR}/configuration.cfg
-      DESTINATION etc
+      DESTINATION etc/carpc/
       RENAME ${PROJECT_TARGET_NAME}.cfg
+   )
+
+
+
+add_custom_target( deploy_${PROJECT_TARGET_NAME}
+      DEPENDS ${PROJECT_TARGET_NAME}
+      COMMENT "Deploying '${PROJECT_TARGET_NAME}'"
+   )
+
+file( MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin/carpc/ )
+add_custom_command(
+      TARGET deploy_${PROJECT_TARGET_NAME} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy 
+         $<TARGET_FILE:${PROJECT_TARGET_NAME}> ${CMAKE_INSTALL_PREFIX}/bin/carpc/
+      COMMENT "Copying executable articats"
+   )
+
+file( MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/etc/carpc/ )
+add_custom_command(
+      TARGET deploy_${PROJECT_TARGET_NAME} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy 
+         ${PROJECT_SOURCE_DIR}/configuration.cfg ${CMAKE_INSTALL_PREFIX}/etc/carpc/${PROJECT_TARGET_NAME}.cfg
+      COMMENT "Copying configuration articats"
    )
